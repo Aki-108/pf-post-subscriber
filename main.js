@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Post Subscriber
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  Get notified when there are new comments in a post.
 // @author       aki108
 // @match        https://www.pillowfort.social/*
@@ -72,6 +72,7 @@
         sidebarSmall.appendChild(subscriptionSmall);
 
         let sidebarBig = document.getElementsByClassName("sidebar-expanded")[2];
+        sidebarBig.children[9].style.paddingBottom = "0";
         let subscriptionBig = document.createElement("div");
         subscriptionBig.classList.add("subscriptionicon");
         subscriptionBig.classList.add("sidebar-topic");
@@ -261,6 +262,7 @@
             modal.classList.add("in");
             modal.style.display = "block";
             modal.style.zIndex = "3";
+            modal.style.overflow = "auto";
             modal.innerHTML = "<div class='modal-dialog'><div class='modal-content' id='postsubscribermodalcontent'></div></div>";
             document.getElementsByTagName("body")[0].appendChild(modal);
             document.getElementById("postsubscribermodal").addEventListener("click", showPopup);
@@ -276,7 +278,12 @@
                 unsubIcon.title = "unsubscribe";
                 unsubIcon.setAttribute("postid", data[0]);
                 entry.appendChild(unsubIcon);
-                entry.innerHTML += "<a href='https://www.pillowfort.social/posts/"+data[0]+"' class='title font-nunito-bold' style='padding-left:10px;display:inline-block;'>"+postData[index][1]+"</a>";
+                let titleData = "<span style='display:inline-block;overflow:hidden;text-overflow:ellipsis;max-width:330px;white-space:nowrap;line-height:1em;'>";
+                titleData += postData[index][1].slice(0, postData[index][1].length-26);
+                titleData += "</span><span style='display:inline-block;overflow:hidden;line-height:1em;padding-left:5px;'>";
+                titleData += postData[index][1].slice(postData[index][1].length-26);
+                titleData += "</span>";
+                entry.innerHTML += "<a href='https://www.pillowfort.social/posts/"+data[0]+"' class='title font-nunito-bold' style='padding-left:10px;display:inline-block;'>"+titleData+"</a>";
                 let info = document.createElement("p");
                 info.style.paddingLeft = "30px";
                 info.style.marginBottom = "0";
