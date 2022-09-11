@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Post Subscriber
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      1.0
 // @description  Get notified when there are new comments in a post.
 // @author       aki108
 // @match        https://www.pillowfort.social/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=pillowfort.social
 // @updateURL    https://raw.githubusercontent.com/Aki-108/pf-post-subscriber/main/main.js
 // @downloadURL  https://raw.githubusercontent.com/Aki-108/pf-post-subscriber/main/main.js
-// @supportURL
+// @supportURL   https://www.pillowfort.social/posts/2878877
 // @grant        none
 // ==/UserScript==
 
