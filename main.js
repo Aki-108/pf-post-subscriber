@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Post Subscriber
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  Get notified when there are new comments in a post.
 // @author       aki108
 // @match        https://www.pillowfort.social/*
@@ -58,19 +58,19 @@
     //run once when the post is loaded
     function initGeneral() {
         //only run once
-        if (document.getElementsByClassName("subscriptionicon").length > 0) return;
+        if (document.getElementsByClassName("postSubscriberIcon").length > 0) return;
 
         //add button to collapsed sidebar
         let sidebarSmall = document.getElementsByClassName("sidebar-collapsed")[1];
         let subscriptionSmall = document.createElement("a");
-        subscriptionSmall.classList.add("subscriptionicon", "sidebar-icon");
+        subscriptionSmall.classList.add("postSubscriberIcon", "sidebar-icon");
         subscriptionSmall.title = "Subscriptions";
         subscriptionSmall.style.cursor = "pointer";
         subscriptionSmall.appendChild(icon.cloneNode(true));
         subscriptionSmall.children[0].style.height = "30px";
         let notificationBubble = document.createElement("div");
         notificationBubble.setAttribute("style", "background:#F377B3;width:8px;height:8px;border-radius:10px;position:relative;top:-10px;right:-24px;display:none;");
-        notificationBubble.id = "subscriptionnotification";
+        notificationBubble.id = "postSubscriberNotificationBubble";
         subscriptionSmall.children[0].appendChild(notificationBubble);
         subscriptionSmall.addEventListener("click", showPopup);
         sidebarSmall.appendChild(subscriptionSmall);
@@ -79,7 +79,7 @@
         let sidebarBig = document.getElementsByClassName("sidebar-expanded")[2];
         sidebarBig.children[9].style.paddingBottom = "0";
         let subscriptionBig = document.createElement("div");
-        subscriptionBig.classList.add("subscriptionicon", "sidebar-topic");
+        subscriptionBig.classList.add("postSubscriberIcon", "sidebar-topic");
         subscriptionBig.appendChild(icon.cloneNode(true).children[0]);
         let title = document.createElement("a");
         title.addEventListener("click", showPopup);
@@ -89,7 +89,7 @@
         let counter = document.createElement("div");
         counter.classList.add("sidebar-num");
         counter.style.paddingTop = "4px";
-        counter.id = "subscriptionnotificationcounter";
+        counter.id = "postSubscriberNotificationCounter";
         counter.innerHTML = "0";
         subscriptionBig.appendChild(counter);
         sidebarBig.appendChild(subscriptionBig);
@@ -108,14 +108,14 @@
             //add button to post navigation
             let postNav = document.getElementsByClassName("post-nav")[0];
             let subscriptionNav = document.createElement("span");
-            subscriptionNav.id = "subscribebutton";
+            subscriptionNav.id = "postSubscriberToggle";
             subscriptionNav.title = subscribed ? "unsubscribe" : "subscribe";
             subscriptionNav.classList.add("nav-tab");
             subscriptionNav.style.cursor = "pointer";
             subscriptionNav.appendChild(icon.cloneNode(true));
             subscriptionNav.addEventListener("click", toggleSubscription);
             postNav.appendChild(subscriptionNav);
-            if (subscribed) document.getElementById("subscribebutton").firstChild.classList.add("svg-pink-light");
+            if (subscribed) document.getElementById("postSubscriberToggle").firstChild.classList.add("svg-pink-light");
 
             //get posts information in preparation for a new subscription
             $.getJSON("https://www.pillowfort.social/posts/"+postID+"/json", function(data) {
@@ -163,8 +163,8 @@
         if (subscribed) {
             unsubscribe(postID);
             //change state of the button in the post navigation
-            document.getElementById("subscribebutton").firstChild.classList.remove("svg-pink-light");
-            document.getElementById("subscribebutton").title = "subscribe";
+            document.getElementById("postSubscriberToggle").firstChild.classList.remove("svg-pink-light");
+            document.getElementById("postSubscriberToggle").title = "subscribe";
         } else {
             //save post data locally
             getData();
@@ -183,8 +183,8 @@
             list = list.toString();
             localStorage.setItem("postsubscriptiondata", list);
             //change state of the button in the post navigation
-            document.getElementById("subscribebutton").firstChild.classList.add("svg-pink-light");
-            document.getElementById("subscribebutton").title = "unsubscribe";
+            document.getElementById("postSubscriberToggle").firstChild.classList.add("svg-pink-light");
+            document.getElementById("postSubscriberToggle").title = "unsubscribe";
             setData();
         }
         subscribed = !subscribed;
@@ -226,8 +226,8 @@
         });
         let comments = document.getElementsByClassName("comment");
         for (let a = 0; a < comments.length; a++) {
-            if (comments[a].classList.contains("postsubscriberprocessed")) continue;
-            comments[a].classList.add("postsubscriberprocessed");
+            if (comments[a].classList.contains("postSubscriberProcessed")) continue;
+            comments[a].classList.add("postSubscriberProcessed");
             let timeString = comments[a].getElementsByClassName("header")[0].children[1].children[1].title;
             let time = new Date(timeString.replace("@", "")).getTime();
             if (time > pivotTime) {
@@ -244,43 +244,54 @@
         $.getJSON("https://www.pillowfort.social/posts/"+id+"/json", function(json) {
             getData();
             let counter = 0;
-            document.getElementById("subscriptionnotification").style.display = "none";
+            document.getElementById("postSubscriberNotificationBubble").style.display = "none";
             subscriptionList.forEach(function(data, index) {
                 if (data[0] == id) {
                     subscriptionList[index][2] = json.comments_count;
                 }
                 if (data[1] < subscriptionList[index][2]) {
-                    document.getElementById("subscriptionnotification").style.display = "block";
+                    document.getElementById("postSubscriberNotificationBubble").style.display = "block";
                     counter += (subscriptionList[index][2]-data[1]);
+                    console.log("new found");
                 }
             });
-            document.getElementById("subscriptionnotificationcounter").innerHTML = counter;
+            document.getElementById("postSubscriberNotificationCounter").innerHTML = counter;
             setData();
         });
     }
 
     //toggle the popup
     function showPopup() {
-        if (document.getElementById("postsubscriberbackground")) {
+        checkPost(subscriptionList[0][0]);
+        if (document.getElementById("postSubscriberBackground")) {
             //remove the popup if it's already there
-            document.getElementById("postsubscriberbackground").remove();
-            document.getElementById("postsubscribermodal").remove();
+            document.getElementsByTagName("body")[0].classList.remove("modal-open");
+            document.getElementsByTagName("nav")[0].style.paddingRight = "0";
+            document.getElementById("postSubscriberBackground").remove();
+            document.getElementById("postSubscriberModal").remove();
         } else {
+            document.getElementsByTagName("body")[0].classList.add("modal-open");
+            document.getElementsByTagName("nav")[0].style.paddingRight = "11px";
+
             //generate background
             let bg = document.createElement("div");
-            bg.id = "postsubscriberbackground";
+            bg.id = "postSubscriberBackground";
             bg.classList.add("modal-backdrop", "in");
             document.getElementsByTagName("body")[0].appendChild(bg);
 
             //generate modal basis
             let modal = document.createElement("div");
-            modal.id = "postsubscribermodal";
+            modal.id = "postSubscriberModal";
             modal.classList.add("modal", "in");
             modal.setAttribute("style", "display:block;z-index:3;overflow:auto;");
             //set the header
-            modal.innerHTML = "<div class='modal-dialog'><div class='modal-content' id='postsubscribermodalcontent'><div style='padding:10px 15px 0 40px;border-bottom:2px solid #e3e3e3;'><button class='close' type='button' title='Close'><span>x</span></button><div style='float:right;margin:10px 20px 0 0;color:#575757;'>unsubscribe all</div><h4 class='modal-title'>Subscriptions</h4></div></div></div>";
+            modal.innerHTML = "<div class='modal-dialog'><div class='modal-content' id='postSubscriberModalContent'><div style='padding:10px 15px 0 40px;border-bottom:2px solid #e3e3e3;'><button class='close' type='button' title='Close'><span>x</span></button><div style='float:right;margin:10px 20px 0 0;color:#575757;cursor:pointer;' id='postSubscriberClear'>unsubscribe all</div><h4 class='modal-title'>Subscriptions</h4></div></div></div>";
             document.getElementsByTagName("body")[0].appendChild(modal);
-            document.getElementById("postsubscribermodal").addEventListener("click", showPopup);
+            document.getElementById("postSubscriberModal").addEventListener("click", showPopup);
+            document.getElementById("postSubscriberClear").addEventListener("click", function() {
+                localStorage.setItem("postsubscriptions", "");
+                localStorage.setItem("postsubscriptiondata", "");
+            });
 
             //generate post entries
             getData();
@@ -306,8 +317,8 @@
                 if (data[1] < data[2]) info.innerHTML = (data[2]-data[1])+" new comment(s) • ";
                 info.innerHTML += "<span style='color:#575757;'>last visit: " + new Date(data[3]*1).toLocaleString()+"</span>";
                 entry.appendChild(info);
-                document.getElementById("postsubscribermodalcontent").appendChild(entry);
-                document.getElementById("postsubscribermodalcontent").lastChild.firstChild.addEventListener("click", function(){unsubscribe(this.getAttribute("postid"));});
+                document.getElementById("postSubscriberModalContent").appendChild(entry);
+                document.getElementById("postSubscriberModalContent").lastChild.firstChild.addEventListener("click", function(){unsubscribe(this.getAttribute("postid"));});
             });
         }
     }
@@ -328,6 +339,6 @@
             }
         });
         setData();
-        if (document.getElementById("postsubscriberbackground")) showPopup();
+        if (document.getElementById("postSubscriberBackground")) showPopup();
     }
 })();
