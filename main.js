@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Post Subscriber
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Get notified when there are new comments in a post.
 // @author       aki108
 // @match        https://www.pillowfort.social/*
@@ -114,9 +114,13 @@
             subscriptionNav.classList.add("nav-tab");
             subscriptionNav.style.cursor = "pointer";
             subscriptionNav.appendChild(icon.cloneNode(true));
+            subscriptionNav.firstChild.firstChild.style.width = "22px";
             subscriptionNav.addEventListener("click", toggleSubscription);
             postNav.appendChild(subscriptionNav);
-            if (subscribed) document.getElementById("postSubscriberToggle").firstChild.classList.add("svg-pink-light");
+            if (subscribed) {
+                document.getElementById("postSubscriberToggle").firstChild.classList.add("svg-pink-light");
+                document.getElementById("postSubscriberToggle").firstChild.firstChild.lastChild.firstChild.style.fill = "rgb(88, 182, 221)";
+            }
 
             //get posts information in preparation for a new subscription
             $.getJSON("https://www.pillowfort.social/posts/"+postID+"/json", function(data) {
@@ -165,6 +169,7 @@
             unsubscribe(postID);
             //change state of the button in the post navigation
             document.getElementById("postSubscriberToggle").firstChild.classList.remove("svg-pink-light");
+            document.getElementById("postSubscriberToggle").firstChild.firstChild.lastChild.firstChild.style.fill = "none";
             document.getElementById("postSubscriberToggle").title = "subscribe";
         } else {
             //save post data locally
@@ -185,6 +190,7 @@
             localStorage.setItem("postsubscriptiondata", list);
             //change state of the button in the post navigation
             document.getElementById("postSubscriberToggle").firstChild.classList.add("svg-pink-light");
+            document.getElementById("postSubscriberToggle").firstChild.firstChild.lastChild.firstChild.style.fill = "rgb(88, 182, 221)";
             document.getElementById("postSubscriberToggle").title = "unsubscribe";
             setData();
         }
