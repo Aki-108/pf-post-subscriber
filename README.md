@@ -10,3 +10,12 @@ Subscribe a post and get notifications for new comments.
 Note: This extention only loads reliably when the tab is focused. Opening a tab in the background won't work.
 
 Tested on Firefox for Windows 10.
+
+## update notes
+V1.1
+• fixed the changes from yesterdays UI-Update
+• added Dark Theme support
+V1.2
+• fixed "subscribe" icon size and color
+V1.3
+• now works in the comment modal too
