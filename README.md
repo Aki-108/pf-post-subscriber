@@ -13,9 +13,11 @@ Tested on Firefox for Windows 10.
 
 ## update notes
 V1.1
-• fixed the changes from yesterdays UI-Update
-• added Dark Theme support
+- fixed the changes from yesterdays UI-Update
+- added Dark Theme support
+
 V1.2
-• fixed "subscribe" icon size and color
+- fixed "subscribe" icon size and color
+
 V1.3
-• now works in the comment modal too
+- now works in the comment modal too
