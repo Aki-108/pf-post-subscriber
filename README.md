@@ -1,4 +1,4 @@
-**⚠ Notice**: This extension is no longer supported. Post Subscriber is now part of Tassel. Use Tassel instead.
+**⚠ Notice**: This extension is no longer supported. Post Subscriber is now part of Tassel. Use [Tassel](https://github.com/Aki-108/Tassel) instead.
 
 # pf-post-subscriber
 Subscribe a post and get notifications for new comments.
